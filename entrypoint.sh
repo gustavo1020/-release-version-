@@ -10,24 +10,19 @@
 set -euo pipefail
 
 main() {
+  
+  PR=$(curl -s -H "Authorization: token ${$3}" \
+    "https://api.github.com/repos/${$2}/pulls?base=${$4}&state=closed&sort=merged&direction=desc&per_page=1")
 
+  LABELS=$(echo "$PR" | jq -r '.[0].labels[] | .name' | tr '\n' ' ')
 
-  PR=$(curl -s -H "Authorization: token ${{ env.GITHUB_TOKEN }}" \
-    "https://api.github.com/repos/Nordelta/sgc-legacy/pulls/876")
+  possible_release_types="$1"
 
-  echo "$PR"
-
-  LABEL=($(echo "$PR" | jq -r '.labels[].name'))
-
-  echo "Labels on the merged PR: |$LABEL|"
-
-  cd ../Documentos/GitHub/sgc-legacy
+  filtered_labels=""
   
   prev_version=$(git describe --tags --abbrev=0)
 
-  last_char="${prev_version: -1}"
-
-  if [[ "$last_char" =~ [a-zA-Z] ]]; then
+  if [[ "${prev_version: -1}" =~ [a-zA-Z] ]]; then
     prev_version="$prev_version.0"
   fi
 
@@ -35,9 +30,18 @@ main() {
     echo "could not read previous version"; exit 1
   fi
 
-  possible_release_types="major feature bug hotfix fix"
+  IFS=' ' read -ra LABELS <<< "$LABELS"
+  IFS=' ' read -ra possible_release_types <<< "$possible_release_types"
 
-  release_type=$(echo "$(echo "$LABEL" | tr ',' '\n' | grep -E "($possible_release_types)")" | tr -d '[:space:]')
+   for LABEL in "${LABELS[@]}"; do
+      for possible_release_type in "${possible_release_types[@]}"; do
+          if [[ $LABEL == $possible_release_type ]]; then
+             filtered_labels="$LABEL"
+          fi
+      done
+   done
+
+  release_type=$filtered_labels
 
   if [[ ! ${possible_release_types[*]} =~ ${release_type} ]]; then
     echo "valid argument: [ ${possible_release_types[*]} ]"; exit 1
@@ -57,11 +61,9 @@ main() {
     exit 1
   fi
 
-  if [[ ($release_type == "major" || $release_type == "feature" || $release_type == "bug") && $pre == "-hotfix" ]]; then
+  if [[ ($release_type == "${possible_release_types[0]}" || $release_type == "${possible_release_types[1]}" || $release_type == "${possible_release_types[2]}") && $pre == "-hotfix" ]]; then
     pre="-stable"
   fi
-
-  IFS=" " read -r -a possible_release_types <<< "$possible_release_types"
 
   case "$release_type" in
   "${possible_release_types[0]}")
@@ -75,32 +77,31 @@ main() {
       then
         preversion=0
       else
-        if [[ "$pre" != "-${possible_release_types[3]}" ]];
+        if [[ "$pre" != "-hotfix" ]];
           then
           preversion=1
           else ((++preversion))
         fi
     fi
-    pre="-${possible_release_types[3]}.$preversion";;
+    pre="-hotfix.$preversion";;
   "${possible_release_types[4]}")
     if [[ -z "$preversion" ]];
       then
         preversion=0
       else
-        if [[ "$pre" != "-${possible_release_types[4]}" ]];
+        if [[ "$pre" != "-beta" ]];
           then
           preversion=1
           else ((++preversion))
         fi
     fi
-    pre="-${possible_release_types[4]}.$preversion";;
+    pre="-beta.$preversion";;
   esac
 
   next_version="${major}.${minor}.${patch}${pre}"
-
   echo "create $release_type-release version: $prev_version -> $next_version"
 
   echo "next-version=$next_version" >> $GITHUB_OUTPUT
 }
 
-main
+main "$1" "$2" "$3" "$4"

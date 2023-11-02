@@ -6,8 +6,18 @@ branding:
   color: 'purple'
 inputs:
   list-version-fragment:
-    description: 'The versions fragment you want to increment. possible options are [ major | feature | bug | alpha | beta | rc ]'
+    description: 'The versions fragment you want to increment. possible options are [ major | feature | bug | hotfix | fix ]'
     required: true
+  repository:
+    description: 'Repository name with owner. For example, actions/checkout'
+    default: ${{ github.repository }}
+  token:
+    description: 'Personal access token (PAT) used to fetch the repository. The PAT is configured
+      with the local git config, which enables your scripts to run authenticated git
+      commands. The post-job step removes the PAT.'
+    default: ${{ github.token }}
+  pulls:
+    default: ${{ github.ref_name }}
 outputs:
   next-version:
     description: 'The incremented version'
@@ -16,3 +26,6 @@ runs:
   image: 'Dockerfile'
   args:
     - ${{ inputs.list-version-fragmentt }}
+    - ${{ inputs.repository }}
+    - ${{ inputs.token }}
+    - ${{ inputs.branch }}
