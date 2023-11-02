@@ -29,7 +29,13 @@ Prioritize having only 1 label out of the 5 declared; if it contains others that
 
 ```yaml
 steps:
-  - uses: gustavo1020/-release-version-@v4
+
+  - name: Print release versio
+    id: bump_version
+    uses: gustavo1020/-release-version-@v1.0.1-stable
     with:
       list-version-fragment: ${{secret.LIST-VERSIONS-FRAGMENTS}} // "major feature bug hotfix fix"
+
+  - name: Print release version
+    run: echo ${{ steps.bump_version.outputs.next-version }}
 ```
