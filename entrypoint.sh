@@ -11,8 +11,8 @@ set -euo pipefail
 
 main() {
   
-  PR=$(curl -s -H "Authorization: token ${$3}" \
-    "https://api.github.com/repos/${$2}/pulls?base=${$4}&state=closed&sort=merged&direction=desc&per_page=1")
+  PR=$(curl -s -H "Authorization: token $3" \
+    "https://api.github.com/repos/$2/pulls?base=$4&state=closed&sort=merged&direction=desc&per_page=1")
 
   LABELS=$(echo "$PR" | jq -r '.[0].labels[] | .name' | tr '\n' ' ')
 
