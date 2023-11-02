@@ -2,7 +2,7 @@ name: Increment Tag Version
 descriptionaa: semantic version
 author: Gustavo Venturo
 branding:
-  icon: 'tag'
+  icon: 'code'
   color: 'purple'
 inputs:
   list-version-fragment:
