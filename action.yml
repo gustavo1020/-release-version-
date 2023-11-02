@@ -17,6 +17,7 @@ inputs:
       commands. The post-job step removes the PAT.'
     default: ${{ github.token }}
   pulls:
+    description: 'he change in our repositorys branch was carried out to address a specific issue related to the existing functionality (searching for the branch tag to which the PR is intended to merge). The team identified a critical error that was adversely affecting the user experience, and the decision was made to create a new branch to resolve it. Furthermore, it was deemed appropriate to introduce a new feature to enhance system efficiency.'
     default: ${{ github.ref_name }}
 outputs:
   next-version:
