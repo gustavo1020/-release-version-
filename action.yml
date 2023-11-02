@@ -26,7 +26,7 @@ runs:
   using: 'docker'
   image: 'Dockerfile'
   args:
-    - ${{ inputs.list-version-fragmentt }}
+    - ${{ inputs.list-version-fragment }}
     - ${{ inputs.repository }}
     - ${{ inputs.token }}
-    - ${{ inputs.branch }}
+    - ${{ inputs.pulls }}
