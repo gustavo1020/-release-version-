@@ -17,7 +17,7 @@ Prioritize having only 1 label out of the 5 declared; if it contains others that
 
 :white_check_mark:
 
-![image](https://github.com/gustavo1020/-release-version-/blob/dsd/main/Screenshot%202023-11-02%20173734.png)
+![image](https://github.com/gustavo1020/-release-version-/blob/main/img/Screenshot%202023-11-02%20173734.png)
 
 :white_check_mark:
 
