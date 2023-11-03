@@ -13,10 +13,6 @@ main() {
   
   PR=$(curl -s -H "Authorization: token $3" \
     "https://api.github.com/repos/$2/pulls?base=$4&state=closed&sort=merged&direction=desc&per_page=1")
-    
-  echo "URl https://api.github.com/repos/$2/pulls?base=$4&state=closed&sort=merged&direction=desc&per_page=1"
-  
-  echo "env.PR $PR"
   
   LABELS=$(echo "$PR" | jq -r '.[0].labels[] | .name' | tr '\n' ' ')
 
@@ -102,10 +98,10 @@ main() {
     pre="-beta.$preversion";;
   esac
 
-  next_version="${major}.${minor}.${patch}${pre}"
+  next_version="$5${major}.${minor}.${patch}${pre}"
   echo "create $release_type-release version: $prev_version -> $next_version"
 
   echo "next-version=$next_version" >> $GITHUB_OUTPUT
 }
 
-main "$1" "$2" "$3" "$4"
+main "$1" "$2" "$3" "$4" "$5"
