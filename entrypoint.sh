@@ -77,7 +77,7 @@ main() {
       then
         preversion=0
       else
-        if [[ "$pre" != "${possible_release_types[3]}" ]];
+        if [[ "$pre" != "-${possible_release_types[3]}" ]];
           then
           preversion=1
           else ((++preversion))
