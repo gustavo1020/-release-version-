@@ -77,13 +77,13 @@ main() {
       then
         preversion=0
       else
-        if [[ "$pre" != "-hotfix" ]];
+        if [[ "$pre" != "${possible_release_types[3]}" ]];
           then
           preversion=1
           else ((++preversion))
         fi
     fi
-    pre="-hotfix.$preversion";;
+    pre="-${possible_release_types[3]}.$preversion";;
   "${possible_release_types[4]}")
     if [[ -z "$preversion" ]];
       then
