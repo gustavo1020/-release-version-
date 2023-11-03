@@ -35,7 +35,9 @@ steps:
     uses: gustavo1020/-release-version-@v1.0.1-stable
     with:
       list-version-fragment: ${{secret.LIST-VERSIONS-FRAGMENTS}} // "major feature bug hotfix fix"
-
+      //optional
+      prefix: 'v' //ej v1.0.1-stable
+      
   - name: Print release version
     run: echo ${{ steps.bump_version.outputs.next-version }}
 ```
