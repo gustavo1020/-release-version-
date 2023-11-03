@@ -41,3 +41,18 @@ steps:
   - name: Print release version
     run: echo ${{ steps.bump_version.outputs.next-version }}
 ```
+
+```
+| version-fragment | current-version |   | output          |
+| ---------------- | --------------- | - | --------------- |
+| major            | 2.11.7-stable   |   | 3.0.0-stable    |
+| major            | 2.11.7-beta     |   | 3.0.0-beta      |
+| feature          | 2.11.7-stable   |   | 2.12.0-stable   |
+| feature          | 2.11.7-beta     |   | 2.12.0-beta     |
+| bug              | 2.11.7-stable   |   | 2.11.8-stable   |
+| bug              | 2.11.7-beta     |   | 2.11.8-beta     |
+| hotfix           | 2.11.7-hotfix.1 |   | 2.11.7-hotfix.2 |
+| hotfix           | 2.11.7          |   | 2.11.7-hotfix.1 |
+| fix              | 2.11.7-beta.1   |   | 2.11.7-beta.2   |
+| fix              | 2.11.7-beta     |   | 2.11.7-beta.1   |
+```
