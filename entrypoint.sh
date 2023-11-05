@@ -19,11 +19,15 @@ main() {
   possible_release_types="$1"
 
   filtered_labels=""
-  
+
   git fetch origin $4
 
   git pull origin $4
 
+  git log --oneline -n 1
+
+  git describe --tags --abbrev=0
+  
   prev_version=$(git describe --tags --abbrev=0)
 
   if [[ "${prev_version: -1}" =~ [a-zA-Z] ]]; then
