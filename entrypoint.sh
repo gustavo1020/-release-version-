@@ -19,8 +19,6 @@ main() {
   possible_release_types="$1"
 
   filtered_labels=""
-  
-  git clone https://github.com/$2.git .
 
   git checkout $4
 
