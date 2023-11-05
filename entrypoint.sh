@@ -19,8 +19,8 @@ main() {
   possible_release_types="$1"
 
   filtered_labels=""
-
-  git checkout $4
+  
+  git fetch origin $4
 
   git pull origin $4
 
