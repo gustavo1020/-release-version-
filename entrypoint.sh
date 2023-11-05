@@ -20,6 +20,12 @@ main() {
 
   filtered_labels=""
   
+  git clone https://github.com/$2.git .
+
+  git checkout $4
+
+  git pull origin $4
+
   prev_version=$(git describe --tags --abbrev=0)
 
   if [[ "${prev_version: -1}" =~ [a-zA-Z] ]]; then
