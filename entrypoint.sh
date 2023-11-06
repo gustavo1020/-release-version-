@@ -10,7 +10,19 @@
 set -euo pipefail
 
 main() {
+
+  mkdir my_commits
+
+  git clone https://$6:$3@github.com/$2.git my_commits
   
+  cd my_commits
+
+  git checkout $4
+
+  git fetch origin $4
+
+  git pull origin $4
+
   PR=$(curl -s -H "Authorization: token $3" \
     "https://api.github.com/repos/$2/pulls?base=$4&state=closed&sort=merged&direction=desc&per_page=1")
   
@@ -20,25 +32,9 @@ main() {
 
   filtered_labels=""
 
-  git fetch origin $4
-
-  git pull origin $4
-
-  git log --oneline --decorate --tags $4
-
-  TAX=$(git log --oneline --decorate --tags $4)
-  echo "var = $TAX"
   COMMITS=$(git log --pretty=oneline $4 | awk '{print $1}')
   
-  prev_version=""
-  
-  for commit in $COMMITS; do
-    TAGS=$(git describe --tags $commit)
-    if [ -n "$TAGS" ]; then
-      prev_version=$(git describe --tags $commit)
-      break
-    fi
-  done
+  prev_version=$(git describe --tags --abbrev=0)
 
   if [[ "${prev_version: -1}" =~ [a-zA-Z] ]]; then
     prev_version="$prev_version.0"
@@ -122,4 +118,4 @@ main() {
   echo "next-version=$next_version" >> $GITHUB_OUTPUT
 }
 
-main "$1" "$2" "$3" "$4" "$5"
+main "$1" "$2" "$3" "$4" "$5" "$6"
