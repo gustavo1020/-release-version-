@@ -28,13 +28,19 @@ main() {
   
   LABELS=$(echo "$PR" | jq -r '.[0].labels[] | .name' | tr '\n' ' ')
 
+  if [ -n "$LABELS" ]; then
+    echo "Label is null"; exit 1
+  fi
+
   possible_release_types="$1"
 
   filtered_labels=""
-
-  COMMITS=$(git log --pretty=oneline $4 | awk '{print $1}')
   
   prev_version=$(git describe --tags --abbrev=0)
+
+  if [ -z "$variable" ]; then
+    echo "prev_version is"; exit 1
+  fi
 
   if [[ "${prev_version: -1}" =~ [a-zA-Z] ]]; then
     prev_version="$prev_version.0"
@@ -47,75 +53,86 @@ main() {
   IFS=' ' read -ra LABELS <<< "$LABELS"
   IFS=' ' read -ra possible_release_types <<< "$possible_release_types"
 
-   for LABEL in "${LABELS[@]}"; do
+  for LABEL in "${LABELS[@]}"; do
       for possible_release_type in "${possible_release_types[@]}"; do
           if [[ $LABEL == $possible_release_type ]]; then
              filtered_labels="$LABEL"
           fi
       done
-   done
+  done
 
-  release_type=$filtered_labels
+  for LABEL in "${LABELS[@]}"; do
+      if [[ $LABEL == "release" ]]; then
+         release_type=$filtered_labels
 
-  if [[ ! ${possible_release_types[*]} =~ ${release_type} ]]; then
-    echo "valid argument: [ ${possible_release_types[*]} ]"; exit 1
-  fi
+         if [[ ! ${possible_release_types[*]} =~ ${release_type} ]]; then
+            echo "valid argument: [ ${possible_release_types[*]} ]"; exit 1
+         fi
 
-  major=0; minor=0; patch=0; pre=""; preversion=0
+         major=0; minor=0; patch=0; pre=""; preversion=0
 
-  regex="^v?([0-9]+).([0-9]+).([0-9]+)((-[a-z]+)?.([0-9]+))?$"
-  if [[ $prev_version =~ $regex ]]; then
-    major="${BASH_REMATCH[1]}"
-    minor="${BASH_REMATCH[2]}"
-    patch="${BASH_REMATCH[3]}"
-    pre="${BASH_REMATCH[5]}"
-    preversion="${BASH_REMATCH[6]}"
-  else
-    echo "previous version '$prev_version' is not a semantic version"
-    exit 1
-  fi
+         regex="^v?([0-9]+).([0-9]+).([0-9]+)((-[a-z]+)?.([0-9]+))?$"
 
-  if [[ ($release_type == "${possible_release_types[0]}" || $release_type == "${possible_release_types[1]}" || $release_type == "${possible_release_types[2]}") && $pre == "-hotfix" ]]; then
-    pre="-stable"
-  fi
+         if [[ $prev_version =~ $regex ]]; then
+            major="${BASH_REMATCH[1]}"
+            minor="${BASH_REMATCH[2]}"
+            patch="${BASH_REMATCH[3]}"
+            pre="${BASH_REMATCH[5]}"
+            preversion="${BASH_REMATCH[6]}"
+         else
+            echo "previous version '$prev_version' is not a semantic version"
+            exit 1
+         fi
 
-  case "$release_type" in
-  "${possible_release_types[0]}")
-    ((++major)); minor=0; patch=0;;
-  "${possible_release_types[1]}")
-    ((++minor)); patch=0;;
-  "${possible_release_types[2]}")
-    ((++patch));;
-  "${possible_release_types[3]}")
-    if [[ -z "$preversion" ]];
-      then
-        preversion=0
+         if [[ ($release_type == "${possible_release_types[0]}" || $release_type == "${possible_release_types[1]}" || $release_type == "${possible_release_types[2]}") && $pre == "-hotfix" ]]; then
+            pre="-stable"
+         fi
+
+         case "$release_type" in
+         "${possible_release_types[0]}")
+         ((++major)); minor=0; patch=0;;
+         "${possible_release_types[1]}")
+         ((++minor)); patch=0;;
+         "${possible_release_types[2]}")
+         ((++patch));;
+         "${possible_release_types[3]}")
+           if [[ -z "$preversion" ]];
+             then
+              preversion=0
+             else
+               if [[ "$pre" != "-${possible_release_types[3]}" ]];
+                 then
+                   preversion=1
+                 else ((++preversion))
+               fi
+           fi
+           pre="-${possible_release_types[3]}.$preversion";;
+         "${possible_release_types[4]}")
+           if [[ -z "$preversion" ]];
+              then
+                preversion=0
+              else
+                if [[ "$pre" != "-beta" ]];
+                   then
+                     preversion=1
+                   else ((++preversion))
+                fi
+           fi
+           pre="-beta.$preversion";;
+         esac
+
+         next_version="$5${major}.${minor}.${patch}${pre}"
+         echo "create $release_type-release version: $prev_version -> $next_version"
+
+         echo "next-version=$next_version" >> $GITHUB_OUTPUT
       else
-        if [[ "$pre" != "-${possible_release_types[3]}" ]];
-          then
-          preversion=1
-          else ((++preversion))
-        fi
-    fi
-    pre="-${possible_release_types[3]}.$preversion";;
-  "${possible_release_types[4]}")
-    if [[ -z "$preversion" ]];
-      then
-        preversion=0
-      else
-        if [[ "$pre" != "-beta" ]];
-          then
-          preversion=1
-          else ((++preversion))
-        fi
-    fi
-    pre="-beta.$preversion";;
-  esac
+        next_version="0"
+         echo "Release tag not found"
 
-  next_version="$5${major}.${minor}.${patch}${pre}"
-  echo "create $release_type-release version: $prev_version -> $next_version"
+         echo "next-version=$next_version" >> $GITHUB_OUTPUT
+      fi
+  done
 
-  echo "next-version=$next_version" >> $GITHUB_OUTPUT
 }
 
 main "$1" "$2" "$3" "$4" "$5" "$6"
