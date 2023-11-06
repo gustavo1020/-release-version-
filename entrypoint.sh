@@ -24,10 +24,14 @@ main() {
 
   git pull origin $4
 
-  COMMITS=$(git log --pretty=oneline $4 | awk '{print $1}')
+  git log --oneline --decorate $4 --tags
 
+  COMMITS=$(git log --pretty=oneline $4 | awk '{print $1}')
+  
+  prev_version=""
+  
   for commit in $COMMITS; do
-    TAGS=$(git tag --contains $commit)
+    TAGS=$(git describe --tags $commit)
     if [ -n "$TAGS" ]; then
       prev_version=$(git describe --tags $commit)
       break
