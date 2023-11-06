@@ -24,11 +24,15 @@ main() {
 
   git pull origin $4
 
-  git log --oneline -n 1
+  COMMITS=$(git log --pretty=oneline $4 | awk '{print $1}')
 
-  git describe --tags --abbrev=0
-  
-  prev_version=$(git describe --tags --abbrev=0)
+  for commit in $COMMITS; do
+    TAGS=$(git tag --contains $commit)
+    if [ -n "$TAGS" ]; then
+      prev_version=$(git describe --tags $commit)
+      break
+    fi
+  done
 
   if [[ "${prev_version: -1}" =~ [a-zA-Z] ]]; then
     prev_version="$prev_version.0"
