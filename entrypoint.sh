@@ -28,26 +28,26 @@ main() {
   
   LABELS=$(echo "$PR" | jq -r '.[0].labels[] | .name' | tr '\n' ' ')
 
-  if [ -n "$LABELS" ]; then
-    echo "Label is null"; exit 1
-  fi
-
   possible_release_types="$1"
 
   filtered_labels=""
-  
+
+  next_version="0"
+
   prev_version=$(git describe --tags --abbrev=0)
 
-  if [ -z "$variable" ]; then
-    echo "prev_version is"; exit 1
+  if [ -z "$prev_version" ]; then
+    prev_version="1.0.0-stable"
+    echo "prev_version is null or the branch is new"
+  fi
+
+  if [[ "$prev_version" == "" ]]; then
+     prev_version="1.0.0-stable"
+     echo "prev_version is null or the branch is new"
   fi
 
   if [[ "${prev_version: -1}" =~ [a-zA-Z] ]]; then
     prev_version="$prev_version.0"
-  fi
-
-  if [[ "$prev_version" == "" ]]; then
-    echo "could not read previous version"; exit 1
   fi
 
   IFS=' ' read -ra LABELS <<< "$LABELS"
@@ -63,6 +63,11 @@ main() {
 
   for LABEL in "${LABELS[@]}"; do
       if [[ $LABEL == "release" ]]; then
+
+         if [ -n "$filtered_labels" || "$filtered_labels" == "" ]; then
+            echo "Label in PR is null"; exit 1
+         fi
+
          release_type=$filtered_labels
 
          if [[ ! ${possible_release_types[*]} =~ ${release_type} ]]; then
@@ -123,15 +128,12 @@ main() {
 
          next_version="$5${major}.${minor}.${patch}${pre}"
          echo "create $release_type-release version: $prev_version -> $next_version"
-
-         echo "next-version=$next_version" >> $GITHUB_OUTPUT
       else
-        next_version="0"
-         echo "Release tag not found"
-
-         echo "next-version=$next_version" >> $GITHUB_OUTPUT
+        echo "Release tag not found"
       fi
   done
+
+  echo "next-version=$next_version" >> $GITHUB_OUTPUT
 
 }
 
