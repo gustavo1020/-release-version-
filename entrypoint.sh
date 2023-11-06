@@ -62,9 +62,14 @@ main() {
   done
 
   for LABEL in "${LABELS[@]}"; do
+      echo "Label $LABEL"
       if [[ $LABEL == "release" ]]; then
 
-         if [ -n "$filtered_labels" || "$filtered_labels" == "" ]; then
+         if [ -z "$possible_release_types" ]; then
+            echo "possible_release_types is null"; exit 1
+         fi
+
+         if [ -z "$filtered_labels" ]; then
             echo "Label in PR is null"; exit 1
          fi
 
@@ -128,6 +133,7 @@ main() {
 
          next_version="$5${major}.${minor}.${patch}${pre}"
          echo "create $release_type-release version: $prev_version -> $next_version"
+         break 
       else
         echo "Release tag not found"
       fi
