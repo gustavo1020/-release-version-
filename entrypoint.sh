@@ -64,7 +64,11 @@ main() {
   for LABEL in "${LABELS[@]}"; do
       if [[ $LABEL == "release" ]]; then
 
-         if [ -n "$filtered_labels" || "$filtered_labels" == "" ]; then
+         if [ -n "$possible_release_types" ] || [ -z "$possible_release_types" ]; then
+            echo "possible_release_types is null"; exit 1
+         fi
+
+         if [ -n "$filtered_labels" ] || [ -z "$filtered_labels" ]; then
             echo "Label in PR is null"; exit 1
          fi
 
