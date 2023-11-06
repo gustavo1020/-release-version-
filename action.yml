@@ -22,7 +22,8 @@ inputs:
   prefix:
     description: 'Increased version prefix'
     default:
-  user: Personal access actor (PAT) used to fetch the repository. The PAT is configured
+  user: 
+    description: Personal access actor (PAT) used to fetch the repository. The PAT is configured
       with the local git config, which enables your scripts to run authenticated git
       commands. The post-job step removes the PAT.'
     default: ${{ github.actor }}
