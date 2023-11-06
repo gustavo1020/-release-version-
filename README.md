@@ -37,6 +37,8 @@ steps:
       list-version-fragment: ${{secret.LIST-VERSIONS-FRAGMENTS}} // "major feature bug hotfix fix"
       //optional
       prefix: 'v' //ej v1.0.1-stable
+      // generar tag cuando el PR tenga un tag que sea release
+      // pendiente si label del PR viene sin nada avisar con un error (y modificar las formas de modificar el beta y stable al generar el tag)
       
   - name: Print release version
     run: echo ${{ steps.bump_version.outputs.next-version }}
