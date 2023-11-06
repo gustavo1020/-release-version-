@@ -24,8 +24,9 @@ main() {
 
   git pull origin $4
 
-  git log --oneline --decorate $4 --tags
-  TAX=$(git log --oneline --decorate $4 --tags)
+  git log --oneline --decorate --tags $4
+
+  TAX=$(git log --oneline --decorate --tags $4)
   echo "var = $TAX"
   COMMITS=$(git log --pretty=oneline $4 | awk '{print $1}')
   
