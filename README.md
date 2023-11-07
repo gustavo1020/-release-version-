@@ -13,9 +13,9 @@ Using the labels from your repository, set them as secrets in GitHub in the foll
 - "hotfix" (error in a feature requested in production)
 - "fix" (error in a feature requested in pre-production)
 
-Prioritize having only 1 label out of the 5 declared; if it contains others that are not in the previous list, that's not a problem."
+It prioritizes having only 1 tag of the 5 declared and one that says release (the latter is mandatory for the generation of the tag), if it contains others that are not in the previous list, that is not a problem.
 
-:white_check_mark:
+:fire:
 
 ![image](https://github.com/gustavo1020/-release-version-/blob/main/img/Screenshot%202023-11-02%20173734.png)
 
@@ -32,7 +32,7 @@ steps:
 
   - name: Print release versio
     id: bump_version
-    uses: gustavo1020/-release-version-@v1.0.1-stable
+    uses: gustavo1020/-release-version-@v1.0.0-stable
     with:
       list-version-fragment: ${{secret.LIST-VERSIONS-FRAGMENTS}} // "major feature bug hotfix fix"
       //optional
